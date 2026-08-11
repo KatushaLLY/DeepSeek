@@ -283,8 +283,8 @@ while True:
                         s,
                         count=1
                     )
-
-                msg[p]["content"] = s
+                    msg[p]["content"] = s
+                    
                 print("Del complete")
             else:
                 print("No thesis exists or DelNum incorrect")
