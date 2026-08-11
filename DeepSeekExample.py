@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from openai import OpenAI
 import markdown
@@ -264,6 +265,26 @@ while True:
                 TheLst.pop(DelNum)
                 ThesisCnt -= 1
                 dirty -= 1
+
+                for i in range(1, ThesisCnt + 1):
+                    p = i + 1
+                    s = msg[p]["content"]
+
+                    s = re.sub(
+                        r"以下文本是我上传的文件\d+",
+                        f"以下文本是我上传的文件{i}",
+                        s,
+                        count=1
+                    )
+
+                    s = re.sub(
+                        r"文件\d+结束啦",
+                        f"文件{i}结束啦",
+                        s,
+                        count=1
+                    )
+
+                msg[p]["content"] = s
                 print("Del complete")
             else:
                 print("No thesis exists or DelNum incorrect")
