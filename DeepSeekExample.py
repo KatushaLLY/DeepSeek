@@ -151,7 +151,7 @@ book = False
 ThesisCnt = 0
 TheLst = ["Memory"]
 Internet = False
-settings = {"MD_Web":True,"Max_Length":100}
+settings = {"MD_Web":True,"Max_Length":100,"INTERNET":True}
 cnt = 0
 dirty = 2
 
@@ -213,7 +213,7 @@ while True:
 
     print("[bright_cyan]LLY:[/bright_cyan]",end="")
     text = input()
-    CmdList = ["UPLOAD","INTERNET","CLEAR","DEL","EXIT","SAVE","LIST","MD","SET","HELP","CLS",""]
+    CmdList = ["UPLOAD","CLEAR","DEL","EXIT","SAVE","LIST","MD","SET","HELP","CLS","DOCS",""]
     while text in CmdList:
         if text == "UPLOAD":
             try:
@@ -222,7 +222,7 @@ while True:
                     filecont = f.read().strip()
                     if filecont:
                         ThesisCnt += 1
-                        msg.insert(ThesisCnt + 1,{"role":"user","content":f"\n以下文本是我上传的文件{ThesisCnt},请你仔细阅读并根据文件回答我的问题,蟹蟹喵~文件路径是{fpath.strip('"')}\n" + filecont + f"\n文件{ThesisCnt}结束啦\n"})
+                        msg.insert(ThesisCnt + 1,{"role":"user","content":f"\n以下文本是我上传的文件{ThesisCnt},文件路径是{fpath},请你仔细阅读并根据文件回答我的问题,蟹蟹喵~\n" + filecont + f"\n文件{ThesisCnt}结束啦\n"})
                         dirty += 1
                         TheLst.append(fpath)
                         print("Load Complete")
@@ -241,14 +241,26 @@ while True:
         #         print(f"OPEN FAILED, Please check your input:{er}")
         #         text = "ERROR"
         
+        elif text == "DOCS":
+            try:
+                fpath = input("FilePath:").strip('"')
+                with open(fpath,"r",encoding = 'utf-8') as f:
+                    filecont = f.read().strip()
+                    if filecont:
+                        msg.append({"role":"user","content":f"\n以下文本是我上传的会话文件,文件路径是{fpath},请你仔细阅读并根据文件回答我的问题,蟹蟹喵~\n" + filecont + f"\n会话文件结束啦\n"})
+                        print("Load Complete")
+                    else:
+                        print("Empty file")
+            except OSError as er:
+                print(f"OPEN FAILED, Please check your input:{er}")
+                text = "ERROR"
+
+
         elif text == "HELP":
             for i in CmdList:
                 print(i,end = " ")
             print()
-        
-        elif text == "INTERNET":
-            Internet = True
-            print("Internet Connected")
+
         elif text == "CLS":
             os.system("cls")
         elif text == "CLEAR":
@@ -371,7 +383,7 @@ while True:
 
     try:
         print("[bright_yellow]-=Blueberry=-[/bright_yellow]")
-        if Internet == False:
+        if settings["INTERNET"] == False:
             msg_c = BuildChatMessages(msg)
 
             response = client.chat.completions.create(
@@ -396,15 +408,14 @@ while True:
                     print(chunk.choices[0].delta.content,end = '', flush = True)
             msg.append({"role":"assistant","content":content})
 
-        elif Internet == True:
-            Internet = False
+        elif settings["INTERNET"] == True:
             full_resp = None
 
             response = client.responses.create(
-                model="deepseek-v4-flash",
+                model="deepseek-v4-pro",
                 input=msg,
                 stream=True,
-                reasoning = {"effort":"high"},
+                reasoning = {"effort":"max"},
                 tools = [{"type": "web_search"}]
             )
 
